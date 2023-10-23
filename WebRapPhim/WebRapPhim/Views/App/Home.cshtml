@@ -1,0 +1,385 @@
+﻿
+@using WebRapPhim.Models;
+@using WebRapPhim.Service;
+
+@{
+    ViewBag.Title = "Home";
+    AppXemPhimEntities1 db = new AppXemPhimEntities1();
+    var ListSuatChieu = db.Film.ToList();
+    List<Film> nowShowing = new List<Film>();
+    foreach (Film i in ListSuatChieu)
+    {
+
+        if (Service.getDateSubtract(System.DateTime.Parse(i.ngay_cong_chieu.ToString())
+       , DateTime.Now) < 10 && i.ngay_cong_chieu <= DateTime.Now)
+        {
+            nowShowing.Add(i);
+        }
+
+    }
+    List<Phong> phong = db.Phong.ToList();
+    List<NhanVien> nv = db.NhanVien.ToList();
+    List<Ve> ve = db.Ve.ToList();
+    List<Film> Upcoming = new List<Film>();
+    foreach (Film i in ListSuatChieu)
+    {
+        int a = Service.getDateSubtract(System.DateTime.Parse(i.ngay_cong_chieu.ToString()), DateTime.Now);
+
+
+        if (i.ngay_cong_chieu> DateTime.Now)
+        {
+            Upcoming.Add(i);
+        }
+
+    }
+    var eventlist = db.SuKien.ToList();
+}
+
+<section id="hero" class="hero d-flex align-items-center section-bg">
+    <h2 style="margin-left:70px" data-aos="fade-up">PHIM ĐANG CHIẾU</h2>
+
+    <div class="container">
+        <div class="slider-frame">
+            <div class="slide-images">
+
+                @foreach (Film i in nowShowing)
+                {
+                    <div class="img-container d-flex" style="gap:20px;">
+                        <img style="width:500px" src="@i.poster_link">
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+
+@*phim dang chieu*@
+
+<main id="main">
+    <section id="menu" class="menu">
+        <div class="container" data-aos="fade-up">
+
+            <div class="section-header">
+                <h2>Movies Selection</h2>
+                <p>Xem phim <span>theo sở thích của bạn</span></p>
+            </div>
+
+            <ul class="nav nav-tabs d-flex justify-content-center" data-aos="fade-up" data-aos-delay="200">
+
+                <li class="nav-item">
+                    <a class="nav-link active show" data-bs-toggle="tab" data-bs-target="#menu-starters">
+                        <h4>Phim đang chiếu</h4>
+                    </a>
+                </li><!-- End tab nav item -->
+
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" data-bs-target="#menu-breakfast">
+                        <h4>Phim sắp chiếu</h4>
+                    </a><!-- End tab nav item -->
+
+                </li>
+
+
+            </ul>
+
+            <div class="tab-content" data-aos="fade-up" data-aos-delay="300">
+
+                <div class="tab-pane fade active show" id="menu-starters">
+
+                    <div class="tab-header text-center">
+
+                        <h3>Phim đang chiếu</h3>
+                    </div>
+
+                    <div class="row gy-5">
+                        @{ if (nowShowing.Count != 0)
+                            {
+                                foreach (Film i in nowShowing)
+                                {
+                                    <div class="col-lg-4 menu-item">
+                                        <a href="@i.poster_link" class="glightbox"><img src="@i.poster_link" class="menu-img img-fluid" alt=""></a>
+                                        <h4>@i.ten</h4>
+                                        <p class="ingredients">
+                                            @i.dao_dien
+                                        </p>
+                                        <p>Ngày công chiếu</p>
+                                        <p class="price">
+                                            @String.Format("{0:dd/MM/yyyy}", i.ngay_cong_chieu)
+                                        </p>
+                                        <a href="~/App/MovieDetail/@i.ID"><button type="button" class="btn btn-danger">Đặt vé ngay</button></a>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <h3 class="text-center">Rất tiếc! Không có phim nào</h3>
+                            }
+
+
+                        }
+
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="menu-breakfast">
+
+                    <div class="tab-header text-center">
+
+                        <h3>Phim sắp chiếu</h3>
+                    </div>
+
+                    <div class="row gy-5">
+                        @{ if (Upcoming.Count != 0)
+                            {
+                                foreach (Film i in Upcoming)
+                                {
+                                    <div class="col-lg-4 menu-item">
+                                        <a href="@i.poster_link" class="glightbox"><img src="@i.poster_link" class="menu-img img-fluid" alt=""></a>
+                                        <h4>@i.ten</h4>
+                                        <p class="ingredients">
+                                            @i.dao_dien
+                                        </p>
+                                        <p>Ngày công chiếu</p>
+                                        <p class="price">
+                                            @String.Format("{0:dd/MM/yyyy}", i.ngay_cong_chieu)
+                                        </p>
+                                        <a href="~/App/MovieDetail/@i.ID"><button type="button" class="btn btn-danger">Đặt vé ngay</button></a>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <h3 class="text-center">Rất tiếc! Không có phim nào</h3>
+                            }
+
+
+                        }
+
+                    </div>
+                </div>
+                </div>
+
+            </div>
+        </div>
+    </section><!-- End Menu Section -->
+    <section id="events" class="events">
+        <div class="container-fluid" data-aos="fade-up">
+
+            <div class="section-header">
+                <h2>Events</h2>
+                <p>Ữu đãi dành cho <span>Thành viên</span></p>
+            </div>
+
+            <div class="slides-3 swiper" data-aos="fade-up" data-aos-delay="100">
+                <div class="swiper-wrapper">
+                    @foreach (SuKien i in eventlist)
+                    {
+                        <div class="swiper-slide event-item d-flex flex-column justify-content-end" style="background-image: url(@i.linkposter)">
+                            <h3>@i.Ten</h3>
+                            <div class="price align-self-start">Giảm @i.PhanTramGiam %</div>
+
+                        </div><!-- End Event item -->
+                    }
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+
+        </div>
+    </section>
+    <!-- ======= Chefs Section ======= -->
+    
+    </section><!-- End Events Section -->
+    <!-- ======= About Section ======= -->
+    <section id="about" class="about">
+        <div class="container" data-aos="fade-up">
+
+            <div class="section-header">
+                <h2>About Us</h2>
+                <p>Learn More <span>About Us</span></p>
+            </div>
+
+            <div class="row gy-4">
+                <div class="col-lg-7 position-relative about-img" style="background-image: url(https://www.cgv.vn/media/wysiwyg/jobs/cgv-2.png) ; height:280px" data-aos="fade-up" data-aos-delay="150">
+                    <div class="call-us position-absolute">
+                        <a href="#"><h4>Book a Ticket</h4></a>
+
+                    </div>
+                </div>
+                <div class="col-lg-5 d-flex align-items-end" data-aos="fade-up" data-aos-delay="300">
+                    <div class="content ps-0 ps-lg-5">
+                        <p class="fst-italic">
+                            Brozilla is a unit within Group 12, one of VietNamese’s largest conglomerates, doing business in 21 countries around the world. Brozilla is one of top 5 cinema system and film distributor in the world, leading film distributor and cinema system in Vietnam.
+                        </p>
+                        <p class="fst-normal">
+                            If you wish to join our Brozilla family and become one of our Brozillaians, please refer some following ways:
+                        </p>
+                        <ul>
+                            <li><i class="bi bi-check2-all"></i> Hanoi and Northern Area.</li>
+                            <li><i class="bi bi-check2-all"></i> Central Area.</li>
+                            <li><i class="bi bi-check2-all"></i> Ho Chi Minh City and Eastern Area.</li>
+                            <li><i class="bi bi-check2-all"></i> Mekong Area.</li>
+                        </ul>
+                        <p>
+                            Brozilla always offers employment opportunities for young, dynamic talents, who’s in love with film industry.
+                        </p>
+
+                        @*<div class="position-relative mt-4">
+                                <img src="assets/img/about-2.jpg" class="img-fluid" alt="">
+                                <a href="https://www.youtube.com/watch?v=LXb3EKWsInQ" class="glightbox play-btn"></a>
+                            </div>*@
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section><!-- End About Section -->
+    <section id="stats-counter" class="stats-counter">
+        <div class="container" data-aos="zoom-out">
+
+            <div class="row gy-4">
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="stats-item text-center w-100 h-100">
+                        <span data-purecounter-start="0" data-purecounter-end="@phong.Count()" data-purecounter-duration="1" class="purecounter"></span>
+                        <p>Phòng</p>
+                    </div>
+                </div><!-- End Stats Item -->
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="stats-item text-center w-100 h-100">
+                        <span data-purecounter-start="0" data-purecounter-end="@ve.Count()" data-purecounter-duration="1" class="purecounter"></span>
+                        <p>Vé đã bán</p>
+                    </div>
+                </div><!-- End Stats Item -->
+
+
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="stats-item text-center w-100 h-100">
+                        <span data-purecounter-start="0" data-purecounter-end="@nv.Count()" data-purecounter-duration="1" class="purecounter"></span>
+                        <p>Nhân viên</p>
+                    </div>
+                </div><!-- End Stats Item -->
+
+            </div>
+
+        </div>
+    </section><!-- End Stats Counter Section -->
+    <!-- ======= Menu Section ======= -->
+    <!-- ======= Testimonials Section ======= -->
+    <!-- ======= Events Section ======= -->
+    <!-- End Chefs Section -->
+    <!-- ======= Book A Table Section ======= -->
+    <!-- ======= Gallery Section ======= -->
+    <section id="gallery" class="gallery section-bg">
+        <div class="container" data-aos="fade-up">
+
+            <div class="section-header">
+                <h2>gallery</h2>
+                <p>Check <span>Our Gallery</span></p>
+            </div>
+
+            <div class="gallery-slider swiper">
+                <div class="swiper-wrapper align-items-center">
+                    <div class="swiper-slide"><a class="glightbox" data-gallery="images-gallery" href="assets/img/gallery/gallery-1.jpg"><img src="assets/img/gallery/gallery-1.jpg" class="img-fluid" alt=""></a></div>
+                    <div class="swiper-slide"><a class="glightbox" data-gallery="images-gallery" href="assets/img/gallery/gallery-2.jpg"><img src="assets/img/gallery/gallery-2.jpg" class="img-fluid" alt=""></a></div>
+                    <div class="swiper-slide"><a class="glightbox" data-gallery="images-gallery" href="assets/img/gallery/gallery-3.jpg"><img src="assets/img/gallery/gallery-3.jpg" class="img-fluid" alt=""></a></div>
+                    <div class="swiper-slide"><a class="glightbox" data-gallery="images-gallery" href="assets/img/gallery/gallery-4.jpg"><img src="assets/img/gallery/gallery-4.jpg" class="img-fluid" alt=""></a></div>
+                    <div class="swiper-slide"><a class="glightbox" data-gallery="images-gallery" href="assets/img/gallery/gallery-5.jpg"><img src="assets/img/gallery/gallery-5.jpg" class="img-fluid" alt=""></a></div>
+                    <div class="swiper-slide"><a class="glightbox" data-gallery="images-gallery" href="assets/img/gallery/gallery-6.jpg"><img src="assets/img/gallery/gallery-6.jpg" class="img-fluid" alt=""></a></div>
+                    <div class="swiper-slide"><a class="glightbox" data-gallery="images-gallery" href="assets/img/gallery/gallery-7.jpg"><img src="assets/img/gallery/gallery-7.jpg" class="img-fluid" alt=""></a></div>
+                    <div class="swiper-slide"><a class="glightbox" data-gallery="images-gallery" href="assets/img/gallery/gallery-8.jpg"><img src="assets/img/gallery/gallery-8.jpg" class="img-fluid" alt=""></a></div>
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+
+        </div>
+    </section><!-- End Gallery Section -->
+    <!-- ======= Contact Section ======= -->
+    <section id="contact" class="contact">
+        <div class="container" data-aos="fade-up">
+
+            <div class="section-header">
+                <h2>Contact</h2>
+                <p>Need Help? <span>Contact Us</span></p>
+            </div>
+
+            <div class="mb-3">
+                <iframe style="border:0; width: 100%; height: 350px;" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.9250508691525!2d106.67491355082657!3d10.81704766136163!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317528e1f241211f%3A0xc9ef195798144b1f!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBN4bufIFRQLkhDTSAtIEPGoSBz4bufIDM!5e0!3m2!1svi!2s!4v1679421540000!5m2!1svi!2s" frameborder="0" allowfullscreen></iframe>
+            </div><!-- End Google Maps -->
+
+            <div class="row gy-4">
+
+                <div class="col-md-6">
+                    <div class="info-item  d-flex align-items-center">
+                        <i class="icon bi bi-map flex-shrink-0"></i>
+                        <div>
+                            <h3>Our Address</h3>
+                            <p>A108 Adam Street, New York, NY 535022</p>
+                        </div>
+                    </div>
+                </div><!-- End Info Item -->
+
+                <div class="col-md-6">
+                    <div class="info-item d-flex align-items-center">
+                        <i class="icon bi bi-envelope flex-shrink-0"></i>
+                        <div>
+                            <h3>Email Us</h3>
+                            <p>contact@example.com</p>
+                        </div>
+                    </div>
+                </div><!-- End Info Item -->
+
+                <div class="col-md-6">
+                    <div class="info-item  d-flex align-items-center">
+                        <i class="icon bi bi-telephone flex-shrink-0"></i>
+                        <div>
+                            <h3>Call Us</h3>
+                            <p>+1 5589 55488 55</p>
+                        </div>
+                    </div>
+                </div><!-- End Info Item -->
+
+                <div class="col-md-6">
+                    <div class="info-item  d-flex align-items-center">
+                        <i class="icon bi bi-share flex-shrink-0"></i>
+                        <div>
+                            <h3>Opening Hours</h3>
+                            <div>
+                                <strong>Mon-Sat:</strong> 11AM - 23PM;
+                                <strong>Sunday:</strong> Closed
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- End Info Item -->
+
+            </div>
+
+            <form action="forms/contact.php" method="post" role="form" class="php-email-form p-3 p-md-4">
+                <div class="row">
+                    <div class="col-xl-6 form-group">
+                        <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" required>
+                    </div>
+                    <div class="col-xl-6 form-group">
+                        <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" required>
+                </div>
+                <div class="form-group">
+                    <textarea class="form-control" name="message" rows="5" placeholder="Message" required></textarea>
+                </div>
+                <div class="my-3">
+                    <div class="loading">Loading</div>
+                    <div class="error-message"></div>
+                    <div class="sent-message">Your message has been sent. Thank you!</div>
+                </div>
+                <div class="text-center"><button type="submit">Send Message</button></div>
+            </form><!--End Contact Form -->
+
+        </div>
+    </section><!-- End Contact Section -->
+
+</main><!-- End #main -->

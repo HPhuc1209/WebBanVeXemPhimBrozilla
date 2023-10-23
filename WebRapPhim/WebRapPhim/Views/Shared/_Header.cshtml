@@ -1,0 +1,75 @@
+﻿
+
+<header id="header" class="header fixed-top d-flex align-items-center">
+    <div class="container d-flex align-items-center justify-content-between">
+
+        <a href="/" class="logo d-flex align-items-center me-auto me-lg-0">
+            <!-- Uncomment the line below if you also wish to use an image logo -->
+            <!-- <img src="assets/img/logo.png" alt=""> -->
+            <h1>Brozilla<span></span></h1>
+        </a>
+
+        <nav id="navbar" class="navbar">
+            <ul>
+                <li><a href="/">Home</a></li>
+               
+                <li class="dropdown">
+                    <a href="#"><span>Phim</span> <i class="bi bi-chevron-down dropdown-indicator"></i></a>
+                    <ul>
+                        <li><a href="~/App/Now_Showing">Phim đang chiếu</a></li>
+
+                        <li><a href="~/App/Coming_soon">Coming soon</a></li>
+
+                    </ul>
+                </li>
+
+                <li class="dropdown">
+                    <a href="#"><span>Thành viên</span> <i class="bi bi-chevron-down dropdown-indicator"></i></a>
+                    <ul>
+                        <li><a href="~/App/CustomerMemberShip">Xem ưu đãi của bạn</a></li>
+
+                        <li><a href="~/App/MemberShip">Ưu đãi thành viên</a></li>
+
+                    </ul>
+                </li>
+
+
+                <li><a href="https://www.facebook.com/profile.php?id=100087266224485">Contact</a></li>
+
+                @if (Session["UserID"] == null)
+                {
+
+
+                    <li>
+                        <a class="btn btn-danger" style="padding:10px; color:white" href="/App/Login">Đăng nhập</a>
+                    </li>
+
+
+                    <li>
+                        <a class="btn btn-danger" style="padding:10px; color:white" href="/App/SignUp">Đăng kí</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="dropdown">
+                        <a href="#"><img style="width:25px" src="https://res.cloudinary.com/dxwx9xyb4/image/upload/v1696235032/lxul2w5ehu33aaa2x5tm.png" /> <i class="bi bi-chevron-down dropdown-indicator"></i></a>
+                        <ul>
+                            <li><a href="#">Tên tài khoản: @Session["UserName"]</a></li>
+                            <li><a href="~/App/CustomerDetail">Xem thông tin tài khoản của bạn</a></li>
+                            <li><a href="~/App/BookingHistory/@Session["UserID"]">Vé của tôi</a></li>
+                            <li><hr /></li>
+                            <li><a href="~/App/Logout">Đăng xuất</a></li>
+
+                        </ul>
+                    </li>
+
+                }
+                
+
+                
+            </ul>
+        </nav><!-- .navbar -->
+      
+                   
+    </div>
+</header><!-- End Header -->

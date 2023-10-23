@@ -1,0 +1,99 @@
+﻿@model IEnumerable<WebRapPhim.Models.SuatChieu>
+@using WebRapPhim.Models;
+@using System.Data.SqlClient;
+@{
+    ViewBag.Title = "BanVe";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    SqlDataReader reader;
+    string strConnect = "Data Source=LAPTOP-GGUL8U3R\\Phuc;Initial Catalog=AppXemPhim;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
+    SqlConnection cnn = new SqlConnection(strConnect);
+    SqlCommand cmd = new SqlCommand();
+    cmd.CommandType = System.Data.CommandType.Text;
+    cmd.Connection = cnn;
+    // Truy vấn Tên Phim
+    cmd.CommandText = "SELECT DISTINCT Film.ten AS FilmTen, SuatChieu.ID AS SuatChieuID, SuatChieu.PhimID AS SuatChieuFID " +
+                "FROM AppXemPhim.dbo.Film " +
+                "JOIN AppXemPhim.dbo.SuatChieu ON AppXemPhim.dbo.Film.ID = AppXemPhim.dbo.SuatChieu.PhimID " +
+                "WHERE AppXemPhim.dbo.Film.ID = AppXemPhim.dbo.SuatChieu.PhimID";
+    cmd.Connection = cnn;
+    if (cnn.State == System.Data.ConnectionState.Closed)
+    {
+        cnn.Open();
+    }
+
+    reader = cmd.ExecuteReader();
+    var table = new System.Data.DataTable();
+    table.Columns.Add("FilmTen");
+    table.Columns.Add("SuatChieuID");
+    table.Columns.Add("SuatChieuFID");
+    while (reader.Read())
+    {
+        table.Rows.Add(reader["FilmTen"], reader["SuatChieuID"], reader["SuatChieuFID"]);
+    }
+    reader.Close();
+    cnn.Close();
+}
+
+<h2 class="text-center">BanVe</h2>
+<form style="margin-left:50px">
+    <input type="text" name="kw"  placeholder="Nhập từ khóa tìm kiếm"/>
+    <button type="submit">Tìm kiếm</button>
+</form>
+<br /><br />
+<table class="table" style="margin-left:20px">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.ID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.GioBatDau)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PhongID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PhimID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Gia)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TrangThai)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GioBatDau)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PhongID)
+            </td>
+            @foreach (System.Data.DataRow row in table.Rows)
+            {
+                if (item.PhimID == Convert.ToInt32(row["SuatChieuFID"]) && item.ID == Convert.ToInt32(row["SuatChieuID"]))
+                {
+                    <td>
+                        <p>@row["FilmTen"]</p>
+                    </td>
+                }
+            }
+            <td>
+                @Html.DisplayFor(modelItem => item.Gia)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TrangThai)
+            </td>
+            <td>
+                <a href="~/Admin/Home/ChonKhach/@item.ID"><button type="button" class="btn btn-danger">Chọn</button></a>
+            </td>
+        </tr>
+    }
+
+</table>

@@ -1,0 +1,278 @@
+﻿@model IEnumerable<WebRapPhim.Models.Film>
+@using WebRapPhim.Models
+@using System.Data.SqlClient;
+@{
+    ViewBag.Title = "MovieDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    AppXemPhimEntities1 db = new AppXemPhimEntities1();
+    Film a = Model.ToList().First();
+    bool checkYear(int nam)
+    {
+
+        if (nam % 400 == 0)
+            return true;
+
+
+        if (nam % 4 == 0 && nam % 100 != 0)
+            return true;
+
+
+        return false;
+    }
+
+    List<SuatChieu> suatchieu = new List<SuatChieu>();
+
+    List<int> arrayDay = new List<int>();
+    List<int> arrayMonth = new List<int>();
+    List<int> arrayYear = new List<int>();
+
+    SqlDataReader reader1;
+    string strConnect = "Data Source=LAPTOP-GGUL8U3R\\Phuc;Initial Catalog=AppXemPhim;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework";
+    SqlConnection cnn = new SqlConnection(strConnect);
+    SqlCommand cmd = new SqlCommand();
+    cmd.CommandType = System.Data.CommandType.Text;
+    cmd.Connection = cnn;
+    cmd.CommandType = System.Data.CommandType.Text;
+    cmd.CommandText = "SELECT TheLoai.ten_the_loai AS TheLoaiTen " +
+                      "FROM AppXemPhim.dbo.TheLoai " +
+                      "INNER JOIN AppXemPhim.dbo.TheLoai_Phim " +
+                      "ON AppXemPhim.dbo.TheLoai.id = AppXemPhim.dbo.TheLoai_Phim.LoaiPhimID " +
+                      "WHERE AppXemPhim.dbo.TheLoai_Phim.PhimID = @PhimID";
+    cmd.Parameters.AddWithValue("@PhimID", Model.ToList()[0].ID);
+    cmd.Connection = cnn;
+
+    if (cnn.State == System.Data.ConnectionState.Closed)
+    {
+        cnn.Open();
+    }
+
+    reader1 = cmd.ExecuteReader();
+    var table1 = new System.Data.DataTable();
+    table1.Columns.Add("TheLoaiTen");
+
+    while (reader1.Read())
+    {
+        table1.Rows.Add(reader1["TheLoaiTen"]);
+    }
+
+    int dem = 0;
+    string tl = "";
+    if (table1.Rows.Count != 0)
+    {
+        foreach (System.Data.DataRow row in table1.Rows)
+        {
+            if (dem == 0)
+            {
+                tl += row["TheLoaiTen"];
+            }
+            else { tl += ", " + row["TheLoaiTen"]; }
+            dem++;
+
+        }
+    }
+}
+
+<script>
+    var preid = 0;
+    function show(id) {
+        document.getElementById(preid).classList.remove("show");
+        document.getElementById(id).classList.add("show");
+        preid = id;
+    }
+</script>
+<section>
+    <div class="container">
+        <div class="border p-3 main-section bg-white">
+            <div class="row m-0">
+                <div class="col-lg-4 left-side-product-box pb-3">
+                    <img src="@a.poster_link" style="width:430px" class="border p-3">
+                </div>
+                <div class="col-lg-8">
+                    <div class="right-side-pro-detail border p-3 m-0">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h2>@a.ten</h2>
+
+                            </div>
+                            <div class="col-lg-12 pt-2">
+                                <h5>Tóm tắt</h5>
+                                <span>
+                                    @a.tom_tat
+                                </span>
+                                <hr class="m-0 pt-2 mt-2">
+                            </div>
+                            <div class="col-lg-12 pt-2">
+                                <h5>Đạo diễn</h5>
+                                <span>
+                                    @a.dao_dien
+                                </span>
+                                <hr class="m-0 pt-2 mt-2">
+                            </div>
+                            <div class="col-lg-12 pt-2">
+                                <h5>Diễn viên</h5>
+                                <span>
+                                    @a.dien_vien
+                                </span>
+                                <hr class="m-0 pt-2 mt-2">
+                            </div>
+                            <div class="col-lg-12 pt-2">
+                                <h5>Khởi chiếu</h5>
+                                <span>
+                                    @DateTime.Parse(a.ngay_cong_chieu.ToString()).ToString("dd-MM-yyyy")
+                                </span>
+                                <hr class="m-0 pt-2 mt-2">
+                            </div>
+
+                            <div class="col-lg-12 pt-2">
+                                <h5>Thời lượng</h5>
+                                <span>
+                                    @a.thoi_luong p
+                                </span>
+                                <hr class="m-0 pt-2 mt-2">
+                            </div>
+
+                            <div class="col-lg-12 pt-2">
+                                <h5>Phụ đề</h5>
+                                <span>
+                                    @a.ngon_ngu
+                                </span>
+                                <hr class="m-0 pt-2 mt-2">
+                            </div>
+
+
+
+                            <div class="col-lg-12">
+                                <p class="tag-section"><strong>Tag : </strong>@tl</p>
+                            </div>
+                            <div class="d-flex gap-5">
+                                <a href="#chonve"><button type="button" class="btn btn-danger">Mua vé ngay</button></a>
+
+                                <a href="@a.trailer" class="glightbox play-btn"><button type="button" class="btn btn-danger">Xem trailer</button></a>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+<section id="menu" class="menu">
+    <div id="chonve" class="container" data-aos="fade-up">
+
+        <div class="section-header">
+            <h2>Movies Selection</h2>
+            <p>Xem phim <span>theo sở thích của bạn</span></p>
+        </div>
+
+        <ul class="nav nav-tabs d-flex justify-content-center" data-aos="fade-up" data-aos-delay="200">
+
+            @{
+                string classname = "";
+                int day = a.ngay_cong_chieu.Value.Day;
+                int month = a.ngay_cong_chieu.Value.Month;
+                int year = a.ngay_cong_chieu.Value.Year;
+                for (int i = 0; i < 10; i++)
+                {
+                    if (i == 0) { classname += "nav-link show active"; }
+                    else { classname = "nav-link show"; }
+                    <li class="nav-item">
+                        <a class="@classname" data-bs-toggle="tab" data-bs-target="#@i" onclick="show(@i)">
+                            <h4>Ngày @day tháng @month năm @year</h4>
+                        </a>
+                    </li>
+
+                    arrayDay.Add(day);
+                    arrayMonth.Add(month);
+                    arrayYear.Add(year);
+                    switch (month)
+                    {
+                        case 1:
+                        case 3:
+                        case 5:
+                        case 7:
+                        case 8:
+                        case 10:
+                        case 12:
+                            if (day == 31)
+                            {
+                                month++;
+                                day = 1;
+                            }
+                            else { day++; }
+                            break;
+
+                        case 4:
+                        case 6:
+                        case 9:
+                        case 11:
+                            if (day == 30)
+                            {
+                                month++;
+                                day = 1;
+                            }
+                            else { day++; }
+                            break;
+                        case 2:
+                            if (checkYear(year))
+                            {
+                                if (day == 29)
+                                {
+                                    month++;
+                                    day = 1;
+                                }
+                                else { day++; }
+                            }
+                            else
+                            {
+                                if (day == 28)
+                                {
+                                    month++;
+                                    day = 1;
+                                }
+                                else { day++; }
+                            }
+                            break;
+                    }
+
+                }
+            }
+        </ul>
+
+        @for (int i = 0; i < 10; i++)
+        {
+            int DayS = arrayDay[i];
+            int MonthS = arrayMonth[i];
+            int YearS = arrayYear[i];
+
+
+            DateTime Now = DateTime.Now;
+            suatchieu = db.SuatChieu.Where(x => x.PhimID == a.ID && x.GioBatDau.Value.Day == DayS && x.GioBatDau.Value.Month == MonthS && x.GioBatDau.Value.Year == YearS && x.PhimID != null && x.PhimID != null).ToList();
+
+            <div class="tab-content" data-aos="fade-up" data-aos-delay="300">
+
+                <div class="tab-pane fade active" id="@i">
+
+                    <div class="tab-header text-center">
+                    </div>
+                    <div class="row gy-5">
+
+                        @foreach (SuatChieu s in suatchieu)
+                        {
+                            if (s.GioBatDau > DateTime.Now)
+                            {
+                                <a href="~/App/ChonVe/@s.ID"><button style="width:200px" type="button" class="btn btn-danger">@DateTime.Parse(s.GioBatDau.ToString()).ToString("HH:mm") </button></a>
+                            }
+                        }
+
+                    </div>
+                </div><!-- End Starter Menu Content -->
+
+
+
+            </div>
+        }
+</section>
+

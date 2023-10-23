@@ -1,0 +1,225 @@
+﻿@using WebRapPhim.Models
+
+@{
+    AppXemPhimEntities1 db = new AppXemPhimEntities1();
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    List<Ve> ve = db.Ve.ToList();
+
+}
+<script src="https://code.jquery.com/jquery-3.6.4.js"
+        integrity="sha256-a9jBBRygX1Bh5lt8GZjXDzyOB+bWve9EiO7tROUtj/E="
+        crossorigin="anonymous"></script>
+
+<main>
+    <div class="container-fluid px-4">
+        <h1 class="mt-4">THỐNG KÊ BÁO CÁO</h1>
+        <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item active">Thống kê doanh thu theo năm</li>
+        </ol>
+        
+        <div>
+            <div>
+                <label style="width:150px" for="year">Nhập số năm:</label>
+                <input type="number" id="year" name="month"><br><br>
+
+            </div>
+            <button type="button" class="btn btn-success" id="ok">Xác nhận</button>
+        </div>
+        <br /><br />
+        <div class="row">
+            <div class="col-xl-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-chart-area me-1"></i>
+                        Area Chart Example
+                    </div>
+                    <div class="card-body" id="piechart">
+                        <canvas id="myChart1" width="100%" height="40"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-chart-bar me-1"></i>
+                        Bar Chart Example
+                    </div>
+                    <div class="card-body" id="xychart">
+                        <canvas id="myChart" width="100%" height="40"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-table me-1"></i>
+                Danh sách vé
+            </div>
+            <div class="card-body">
+                <table id="datatablesSimple" style="width:1550px">
+                    <thead>
+                        <tr>
+                            <th>Mã vé</th>
+                            <th>Ngày bán</th>
+                            <th>Ghế</th>
+                            <th>Mã nhân viên</th>
+                            <th>Mã khách</th>
+                            <th>Tên khách</th>
+                            <th>sdt khách</th>
+                            <th>Email khách</th>
+                            <th>Giá</th>
+                            <th>Suất chiếu</th>
+                            <th>Loại vé</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>Mã vé</th>
+                            <th>Ngày bán</th>
+                            <th>Ghế</th>
+                            <th>Mã nhân viên</th>
+                            <th>Mã khách</th>
+                            <th>Tên khách</th>
+                            <th>sdt khách</th>
+                            <th>Email khách</th>
+                            <th>Giá</th>
+                            <th>Suất chiếu</th>
+                            <th>Loại vé</th>
+
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        @foreach (Ve i in ve) { 
+                            <tr>
+                                <td>@i.ID</td>
+                                <td>@i.NgayBan</td>
+                                <td>@i.Ghe</td>
+                                <td>@i.NVID</td>
+                                <td>@i.CusId</td>
+                                <td>@i.name</td>
+                                <td>@i.sdt</td>
+                                <td>@i.email</td>
+                                <td>@i.Gia</td>
+                                <td>@i.SuatChieuID</td>
+                                <td>@i.LoaVe</td>
+
+                            </tr>
+                        }
+                        
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    $('#ok').on('click', function () {
+        var year = $('#year').val();
+        getreportlist(year)
+    })
+    var dt = new Date();
+    getreportlist(dt.getFullYear())
+
+
+    function getreportlist(year) {
+        $.get('/App/loadBaocao?year=' + year, function (res) {
+            loadXYchar(res)
+            drawPieChart(res)
+
+        })
+    }
+    function loadXYchar(listdata) {
+        let colors = []
+        let borderCorlors = []
+        for (var i = 0; i < 12; i++) {
+            r = parseInt(Math.random() * 255)
+            g = parseInt(Math.random() * 255)
+            b = parseInt(Math.random() * 255)
+            colors.push(`rgba(${r}, ${g}, ${b})`)
+            borderCorlors.push(`rgba(${r}, ${g}, ${b}, 1)`)
+        }
+
+        $('canvas#myChart').remove();
+        $('#xychart').html('<canvas id="myChart" width="100" height="40"></canvas>');
+        var label = []
+        var datasrc = []
+        $.each(listdata, function (index, item) {
+            label.push("Tháng " + item.month)
+            datasrc.push(item.total)
+        })
+        const ctx = document.getElementById('myChart');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: label,
+                datasets: [{
+
+                    data: datasrc,
+                    borderWidth: 1,
+                    backgroundColor: colors,
+                    borderCorlors: borderCorlors
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+
+    function drawPieChart(listdata) {
+
+        $('canvas#myChart1').remove();
+        $('#piechart').html('<canvas id="myChart1" width="100" height="40"></canvas>');
+        var label = []
+        var datasrc = []
+        let colors = []
+        let borderCorlors = []
+        for (var i = 0; i < 12; i++) {
+            r = parseInt(Math.random() * 255)
+            g = parseInt(Math.random() * 255)
+            b = parseInt(Math.random() * 255)
+            colors.push(`rgba(${r}, ${g}, ${b})`)
+            borderCorlors.push(`rgba(${r}, ${g}, ${b}, 1)`)
+        }
+       
+        $.each(listdata, function (index, item) {
+            label.push("Tháng " + item.month)
+            datasrc.push(item.total)
+        })
+
+        const ctx = document.getElementById('myChart1');
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: label,
+                datasets: [{
+
+                    data: datasrc,
+                    borderWidth: 1,
+                    backgroundColor: colors,
+                    borderCorlors: borderCorlors
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+</script>
+
